@@ -338,3 +338,13 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+cd C:\Users\User\Desktop
+python --version
+python -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\.venv\Scripts\Activate.ps1
+python -m pip install pdf2docx pymupdf python-docx
+python pdf_to_docx_improved.py
