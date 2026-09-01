@@ -1,0 +1,5 @@
+paddleocr[doc-parser]
+pdf2docx
+pymupdf
+python-docx
+docxcompose
