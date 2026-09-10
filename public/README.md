@@ -153,4 +153,21 @@ Reuse convert_pdf_to_docx() for every PDF.
 
 Do not clear the OCR cache between files.
 
-Do not create a new Python subprocess for every PDF.
+Do not create a new Python subprocess for every PDF. 
+const A = ["tech","win","soft","web","data","cloud","byte","net",
+           "core","node","grid","link","host","hub","lab","zone"];
+
+const B = ["news","blog","info","pro","online","space","app","site",
+           "media","review","guide","daily","wire","feed","digest","report"];
+
+const T = ".com";
+const P = [];
+
+for (let i = 0; i < A.length; i++) {
+  for (let j = 0; j < B.length; j++) {
+    const a = A[i];
+    const b = B[(j + i) % B.length];
+    P.push(a + b + T);
+    P.push(b + a + T);
+  }
+}
